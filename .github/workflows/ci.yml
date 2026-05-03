@@ -24,12 +24,22 @@ jobs:
           distribution: 'temurin'
           cache: maven   # caching
 
-      - name: Run Unit Tests and Verify Coverage
+      - name: Run Unit Tests
         run: mvn verify
 
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
+  # Job checkstyle cho PR (chỉ chạy trên ubuntu, không cần matrix)
+  checkstyle-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Checkstyle with reviewdog
+        uses: dbelyaev/action-checkstyle@v0.7.2
         with:
-          name: coverage-report-${{ matrix.os }}
-          path: target/site/jacoco/index.html
-          retention-days: 7
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          level: error
+          workdir: ./src/main
+          checkstyle_config: google_checks.xml
