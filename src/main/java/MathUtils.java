@@ -1,9 +1,7 @@
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.*;
 
-/**
- * Lớp tiện ích cung cấp các phép tính cơ bản.
- */
 public class MathUtils {
   // Thay đổi nhỏ trong code để test caching
   // Logger là static final: một instance duy nhất per class, thread-safe.
@@ -11,14 +9,7 @@ public class MathUtils {
   // để tránh typo và hỗ trợ rename refactoring.
   private static final Logger logger = LoggerFactory.getLogger(MathUtils.class);
 
-  /**
-   * Phép cộng 2 số nguyên.
-   *
-   * @param a số hạng thứ nhất.
-   * @param b số hạng thứ hai.
-   * @return tổng.
-   */
-  public int add(int a, int b) {
+public int add(int a, int b) {
     // DEBUG: thông tin chi tiết,  chỉ hữu ích khi troubleshoot.
     // Dùng parameterized message {} thay vì string concatenation
     // để tránh tạo String object khi log level không active.

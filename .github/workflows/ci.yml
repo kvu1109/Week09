@@ -1,35 +1,62 @@
 name: Java CI with Maven
 
+# Trigger khi có PR vào main
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pull-requests: write   # cần để bot comment vào PR
+  checks: write
 
 jobs:
   build-and-test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up JDK 25
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '25'
+          java-version: '17'
           distribution: 'temurin'
-          cache: maven   # caching
+          cache: 'maven'
 
-      - name: Run Unit Tests and Verify Coverage
-        run: mvn verify
+      - name: Run tests
+        run: mvn clean test --batch-mode
 
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
+  checkstyle-review:
+    runs-on: ubuntu-latest
+    # Chỉ chạy khi là PR event
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      # Action này tự động comment inline vào các dòng vi phạm Checkstyle
+      - name: Checkstyle Inline Review
+        uses: dbelyaev/action-checkstyle@v3
         with:
-          name: coverage-report-${{ matrix.os }}
-          path: target/site/jacoco/index.html
-          retention-days: 7
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review   # comment trực tiếp vào PR
+          checkstyle_config: google_checks.xml
+          level: warning               # tạo review comment (không fail build)
+          filter_mode: diff_context    # chỉ comment vào lines đã thay đổi
+
+  # Job này fail nếu có Checkstyle error → block merge
+  checkstyle-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Checkstyle gate (fails on violation)
+        run: mvn checkstyle:check --batch-mode
