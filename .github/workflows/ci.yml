@@ -41,5 +41,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
           level: error
-          workdir: ./src/main
+          workdir: ./src/main/java
           checkstyle_config: google_checks.xml
