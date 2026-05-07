@@ -17,7 +17,6 @@ public int add(int a, int b) {
     int result = a + b;
     logger.debug("Addition result: {}", result);
     return result;
-    System.out.println("idk");
   }
 
   /**
