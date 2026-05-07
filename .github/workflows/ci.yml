@@ -41,7 +41,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
-          level: warning
+          level: error
           checkstyle_config: google_checks.xml
           filter_mode: diff_context
 
