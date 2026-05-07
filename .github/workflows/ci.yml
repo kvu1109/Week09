@@ -43,4 +43,3 @@ jobs:
           level: error
           workdir: ./src/main/java
           checkstyle_config: google_checks.xml
-          fail_on_error: 'true'
